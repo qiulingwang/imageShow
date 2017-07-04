@@ -42,7 +42,7 @@ function getDefaultModules() {
       },
       {
         test: /\.styl/,
-        loader: 'style-loader!css-loader!postcss-loader!stylus-loader'
+        loader: 'style-loader!css-loader!stylus-loader'
       },
       {
         test: /\.json$/,
