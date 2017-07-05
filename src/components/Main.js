@@ -60,7 +60,7 @@ class AppComponent extends Component {
 
   //重新布局所有图片
   rearrange(centerIndex) {
-
+    console.log(centerIndex);
   }
 
   componentDidMount() {
