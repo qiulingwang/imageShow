@@ -12,10 +12,17 @@ imageDatas = (function loadUrl(imageDatas) {
   return imageDatas;
 })(imageDatas);
 
+var getRangeRandom = (low, high) => Math.floor(Math.random() * (high - low) + low);
+
 class ImgFigure extends Component {
   render() {
+    var styleObj ={};
+    if(this.props.arrange.pos){
+      styleObj = this.props.arrange.pos
+    }
+
     return (
-      <figure className="img-figure">
+      <figure className="img-figure"  style={styleObj}>
         <img src={this.props.data.imageUrl} alt={this.props.data.title}/>
         <figcaption>
           <h2 className="img-title">{this.props.data.title}</h2>
@@ -60,13 +67,73 @@ class AppComponent extends Component {
 
   //重新布局所有图片
   rearrange(centerIndex) {
-    console.log(centerIndex);
+    let imgsArrangeArr = this.state.imgsArrangeArr,
+        Constant = this.Constant,
+        centerPos = Constant.centerPos,
+        hPosRange = Constant.hPosRange,
+        vPosRange = Constant.vPosRange,
+        hPosRangeLeftSecX = hPosRange.leftSecX,
+        hPosRangeRightSecX = hPosRange.rightSecX,
+        hPosRangeY = hPosRange.y,
+        vPosRangeTopY = vPosRange.topY,
+        vPosRangeX = vPosRange.x,
+        imgsArrangTopArr = [],
+
+        topImgNum = Math.floor(Math.random() * 2), //取一个或者不取
+        topImgSpiceIndex = 0,
+        imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
+        //首先居中centerIndex图片 ,centerIndex图片不需要旋转
+        imgsArrangeCenterArr[0] = {
+          pos: centerPos,
+          rotate: 0,
+          isCenter: true
+        }
+    //取出要布局上测的图片的状态信息
+    topImgSpiceIndex = Math.floor(Math.random() * (imgsArrangeArr.length - topImgNum));
+    imgsArrangTopArr = imgsArrangeArr.splice(topImgSpiceIndex, topImgNum);
+    //布局位于上侧的图片
+    imgsArrangTopArr.forEach((value, index) => {
+      imgsArrangTopArr[index] = {
+        pos: {
+          top: getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
+          left: getRangeRandom(vPosRangeX[0], vPosRangeX[1])
+        },
+        isCenter: false
+      };
+    });
+
+    //布局左两侧的图片
+    // k = 7
+    for (let i = 0, k = imgsArrangeArr.length/ 2; i < imgsArrangeArr.length; i++) {
+      let hPosRangeLORX = null;
+
+      //前半部分布局左边,右边部分布局右边
+      if (i < k) {
+        hPosRangeLORX = hPosRangeLeftSecX;
+      } else {
+        hPosRangeLORX = hPosRangeRightSecX
+      }
+      imgsArrangeArr[i] = {
+        pos: {
+          top: getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
+          left: getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
+        },
+        isCenter: false
+      };
+    }
+    if (imgsArrangTopArr && imgsArrangTopArr[0]) {
+      imgsArrangeArr.splice(topImgSpiceIndex, 0, imgsArrangTopArr[0]);
+    }
+    imgsArrangeArr.splice(centerIndex, 0, imgsArrangeCenterArr[0]);
+    this.setState({
+      imgsArrangeArr: imgsArrangeArr
+    });
   }
 
   componentDidMount() {
     let stageDOM = ReactDOM.findDOMNode(this.refs.stage),
       stageW = stageDOM.scrollWidth,
-      stageY = stageDOM.scrollHeight,
+      stageH = stageDOM.scrollHeight,
       halfStageW = Math.ceil(stageW / 2),
       halfStageH = Math.ceil(stageH / 2);
 
@@ -115,7 +182,7 @@ class AppComponent extends Component {
           isCenter: false
         }
       }
-      imgFigures.push(<ImgFigure data={val} key={index} ref={'imgFigure' + index}/>)
+      imgFigures.push(<ImgFigure data={val} key={index} ref={'imgFigure' + index} arrange={this.state.imgsArrangeArr[index]}/>)
     })
 
     return (
