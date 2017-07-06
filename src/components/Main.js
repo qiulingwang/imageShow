@@ -12,17 +12,26 @@ imageDatas = (function loadUrl(imageDatas) {
   return imageDatas;
 })(imageDatas);
 
-var getRangeRandom = (low, high) => Math.floor(Math.random() * (high - low) + low);
+//获取区间内的一个随机值
+let getRangeRandom = (low, high) => Math.floor(Math.random() * (high - low) + low);
+//获取0-30°之间一个任意正负值
+let get30DegRandom = () => (Math.random() > 0.5 ? '' : '-') + Math.floor(Math.random() * 30)
 
 class ImgFigure extends Component {
   render() {
-    var styleObj ={};
-    if(this.props.arrange.pos){
+    var styleObj = {};
+    if (this.props.arrange.pos) {
       styleObj = this.props.arrange.pos
     }
 
+    if (this.props.arrange.rotate) {
+      (['Moz', 'Ms', 'Webkit', '']).forEach((value) => {
+        styleObj[value + 'Transform'] = 'rotate(' + this.props.arrange.rotate + 'deg)';
+      })
+    }
+
     return (
-      <figure className="img-figure"  style={styleObj}>
+      <figure className="img-figure" style={styleObj}>
         <img src={this.props.data.imageUrl} alt={this.props.data.title}/>
         <figcaption>
           <h2 className="img-title">{this.props.data.title}</h2>
@@ -68,26 +77,26 @@ class AppComponent extends Component {
   //重新布局所有图片
   rearrange(centerIndex) {
     let imgsArrangeArr = this.state.imgsArrangeArr,
-        Constant = this.Constant,
-        centerPos = Constant.centerPos,
-        hPosRange = Constant.hPosRange,
-        vPosRange = Constant.vPosRange,
-        hPosRangeLeftSecX = hPosRange.leftSecX,
-        hPosRangeRightSecX = hPosRange.rightSecX,
-        hPosRangeY = hPosRange.y,
-        vPosRangeTopY = vPosRange.topY,
-        vPosRangeX = vPosRange.x,
-        imgsArrangTopArr = [],
+      Constant = this.Constant,
+      centerPos = Constant.centerPos,
+      hPosRange = Constant.hPosRange,
+      vPosRange = Constant.vPosRange,
+      hPosRangeLeftSecX = hPosRange.leftSecX,
+      hPosRangeRightSecX = hPosRange.rightSecX,
+      hPosRangeY = hPosRange.y,
+      vPosRangeTopY = vPosRange.topY,
+      vPosRangeX = vPosRange.x,
+      imgsArrangTopArr = [],
 
-        topImgNum = Math.floor(Math.random() * 2), //取一个或者不取
-        topImgSpiceIndex = 0,
-        imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
-        //首先居中centerIndex图片 ,centerIndex图片不需要旋转
-        imgsArrangeCenterArr[0] = {
-          pos: centerPos,
-          rotate: 0,
-          isCenter: true
-        }
+      topImgNum = Math.floor(Math.random() * 2), //取一个或者不取
+      topImgSpiceIndex = 0,
+      imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
+    //首先居中centerIndex图片 ,centerIndex图片不需要旋转
+    imgsArrangeCenterArr[0] = {
+      pos: centerPos,
+      rotate: 0,
+      isCenter: true
+    }
     //取出要布局上测的图片的状态信息
     topImgSpiceIndex = Math.floor(Math.random() * (imgsArrangeArr.length - topImgNum));
     imgsArrangTopArr = imgsArrangeArr.splice(topImgSpiceIndex, topImgNum);
@@ -98,13 +107,14 @@ class AppComponent extends Component {
           top: getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
           left: getRangeRandom(vPosRangeX[0], vPosRangeX[1])
         },
+        rotate : get30DegRandom(),
         isCenter: false
       };
     });
 
     //布局左两侧的图片
     // k = 7
-    for (let i = 0, k = imgsArrangeArr.length/ 2; i < imgsArrangeArr.length; i++) {
+    for (let i = 0, k = imgsArrangeArr.length / 2; i < imgsArrangeArr.length; i++) {
       let hPosRangeLORX = null;
 
       //前半部分布局左边,右边部分布局右边
@@ -118,6 +128,7 @@ class AppComponent extends Component {
           top: getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
           left: getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
         },
+        rotate : get30DegRandom(),
         isCenter: false
       };
     }
@@ -182,7 +193,8 @@ class AppComponent extends Component {
           isCenter: false
         }
       }
-      imgFigures.push(<ImgFigure data={val} key={index} ref={'imgFigure' + index} arrange={this.state.imgsArrangeArr[index]}/>)
+      imgFigures.push(<ImgFigure data={val} key={index} ref={'imgFigure' + index}
+                                 arrange={this.state.imgsArrangeArr[index]}/>)
     })
 
     return (
