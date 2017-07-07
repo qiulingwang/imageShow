@@ -1,5 +1,17 @@
+@font-face {
+  font-family: "icons-turn-arrow";
+  src: url("../fonts/icons/turn-arrow.eot") format("embedded-opentype"),
+    url("../fonts/icons/turn-arrow.woff") format("woff"),
+    url("../fonts/icons/turn-arrow.ttf") format("truetype"),
+    url("../fonts/icons/turn-arrow.svg") format("svg");
+}
+
+
 html,body
   margin 0
+  width 100%
+  height 100%
+  background-color: #ddd;
 
 #app
   width 100%
@@ -28,6 +40,12 @@ html,body
     padding 40px
     background-color #ffffff
     box-sizing border-box
+    cursor pointer
+    transform-origin 0 50% 0   /*旋转中心线是左线*/
+    transform-style preserve-3d
+    transition transform .6s ease-in-out, left .6s ease-in-out, top .6s ease-in-out;
+    &.is-inverse
+      transform translate(320px) rotateY(180deg)
     img
       width 240px
       height 240px
@@ -36,6 +54,29 @@ html,body
     color #a7a0a2
     font-size 16px
     text-align center
+  .img-back
+    position absolute;
+    top 0;
+    left 0;
+
+    width 100%;
+    height 100%;
+
+    padding 50px 40px;
+    overflow auto;
+
+    color #a7a0a2;
+    font-size 22px;
+    line-height 1.25;
+    text-align center;
+    background-color #fff;
+    box-sizing border-box;
+
+    /*先开始时.img-back，旋转了180度，因为translateZ(1px)，位于正面图像的下方*/
+    /*当.img-figure旋转时，.img-back又旋转了180度，旋转度数为360,因为translateZ(1px)，位于正面图像的上方*/
+    transform rotateY(180deg) translateZ(1px);
+    /*translateZ(1px) 是为了解决Safari 的bug*/
+    backface-visibility hidden;
 /* image -- end */
 
 
@@ -47,4 +88,33 @@ html,body
   z-index 101
   width 100%
   text-align center
+  .controller-unit
+    width 30px
+    height 30px
+    text-align center
+    vertical-align middle        //垂直居中对齐
+    display inline-block
+    margin 0 5px
+    border-radius 50%
+    background-color #ccc
+    transform scale(.5)
+    transition transform .6s ease-in-out, background-color .3s;
+    cursor pointer
+    &.is-center
+      transform scale(1)
+      background-color #888
+      &::after {
+        color: #fff;
+        font-family: "icons-turn-arrow";
+        font-size: 80%;
+        line-height: 30px;
+        content: "\e600";
+        -webkit-font-smoothing: antialiased;
+        -moz-font-smoothing: grayscale;
+      }
+      &.is-inverse {
+        background-color: #555;
+        transform: rotateY(180deg);
+      }
+
 /* controller -- end */
